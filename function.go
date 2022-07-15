@@ -1,9 +1,9 @@
 package postalcodeSearch
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"net/http"
 	"os"
@@ -14,19 +14,17 @@ import (
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
 )
 
-type kenall = [][]string
-
-var kennallArray kenall
-
 type result struct {
 	Page  int        `json:"page"`
+	Q     string     `json:"q"`
 	Limit int        `json:"limit"`
 	Hits  [][]string `json:"hits"`
 	Time  int        `json:"time"`
 }
 
+var kenallRecords [][]string
+
 func init() {
-	loadStart := time.Now()
 
 	dir := "./"
 	functionTarget := os.Getenv("FUNCTION_TARGET")
@@ -35,24 +33,38 @@ func init() {
 		dir = "/workspace/serverless_function_source_code/"
 	}
 
-	file, err := ioutil.ReadFile(dir + "x-ken-all-hiragana.json")
+	csvLoadStart := time.Now()
+
+	csvFileHandle, err := os.Open(dir + "x-ken-all.csv")
 	if err != nil {
 		panic(err)
 	}
 
-	err = json.Unmarshal(file, &kennallArray)
+	reader := csv.NewReader(csvFileHandle)
+	records, err := reader.ReadAll()
 	if err != nil {
 		panic(err)
 	}
+	kenallRecords = records
 
-	fmt.Printf("load time: %d msecs\n", time.Since(loadStart).Milliseconds())
+	for _, row := range kenallRecords {
+		row[3] = KatakanaToHiragana(HankakuKatakanaToKatakana(row[3]))
+		row[4] = KatakanaToHiragana(HankakuKatakanaToKatakana(row[4]))
+		row[5] = KatakanaToHiragana(HankakuKatakanaToKatakana(row[5]))
+	}
+
+	// for i := 0; i < 100; i++ {
+	// 	fmt.Printf("%v\n", kenallRecords[i])
+	// }
+
+	fmt.Printf("csv load time: %d msecs\n", time.Since(csvLoadStart).Milliseconds())
 
 	functions.HTTP("PostalCodeSearch", PostalCodeSearch)
 }
 
 func PostalCodeSearch(w http.ResponseWriter, r *http.Request) {
 
-	query := r.URL.Query().Get("q")
+	query := KatakanaToHiragana(HankakuKatakanaToKatakana(r.URL.Query().Get("q")))
 
 	limit := 10
 	limitStr := r.URL.Query().Get("limit")
@@ -77,11 +89,12 @@ func PostalCodeSearch(w http.ResponseWriter, r *http.Request) {
 	skip := limit * page
 
 	var res result
+	res.Q = query
 	res.Limit = limit
 	res.Page = page
 
-	for i := 1; i < len(kennallArray); i++ {
-		row := kennallArray[i]
+	for i := 1; i < len(kenallRecords); i++ {
+		row := kenallRecords[i]
 		found := false
 		for k := 0; k < len(row); k++ {
 			value := row[k]

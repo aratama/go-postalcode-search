@@ -1,1 +1,1 @@
-gcloud functions deploy postalcode-search --entry-point PostalCodeSearch --runtime go113 --trigger-http --allow-unauthenticated --project postalcode-firebase
+gcloud functions deploy postalcode-search --entry-point PostalCodeSearch --runtime go113 --trigger-http --allow-unauthenticated --project postalcode-firebase --region asia-northeast1

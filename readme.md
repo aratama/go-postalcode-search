@@ -6,10 +6,12 @@
 $ ./run.sh
 ```
 
-And open http://localhost:8080/?q=長野
+Then, open http://localhost:8080/?q=長野
 
 ## Deploy
 
 ```
 $ ./deploy.sh
 ```
+
+Then, open https://asia-northeast1-postalcode-firebase.cloudfunctions.net/postalcode-search/?q=ながの
