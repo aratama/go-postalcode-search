@@ -1,1 +1,0 @@
-gcloud functions deploy HelloWorld --entry-point HelloWorld --runtime go113 --trigger-http --allow-unauthenticated --project postalcode-firebase

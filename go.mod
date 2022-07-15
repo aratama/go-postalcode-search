@@ -1,4 +1,4 @@
-module example.com/hello
+module example.com/postalcode-search
 
 go 1.13
 

@@ -1,3 +1,13 @@
-node_modules
-*.log
-ui-debug.log
+# Compiled JavaScript files
+lib
+lib/**/*.js
+lib/**/*.js.map
+
+# TypeScript v1 declaration files
+typings/
+
+# Node.js dependency directory
+node_modules/
+
+export
+autogen
