@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/GoogleCloudPlatform/functions-framework-go/functions"
+	"golang.org/x/text/encoding/japanese"
+	"golang.org/x/text/transform"
 )
 
 type result struct {
@@ -22,7 +24,7 @@ type result struct {
 	Time  int        `json:"time"`
 }
 
-var kenallRecords [][]string
+var kenall [][]string
 
 func init() {
 
@@ -35,19 +37,22 @@ func init() {
 
 	csvLoadStart := time.Now()
 
-	csvFileHandle, err := os.Open(dir + "x-ken-all.csv")
+	shiftJisCSVFileHandle, err := os.Open(dir + "x-ken-all.csv")
 	if err != nil {
 		panic(err)
 	}
 
-	reader := csv.NewReader(csvFileHandle)
-	records, err := reader.ReadAll()
+	// encode shift-jis to UTF8
+	utf8CSVFileReader := transform.NewReader(shiftJisCSVFileHandle, japanese.ShiftJIS.NewDecoder())
+
+	csvReader := csv.NewReader(utf8CSVFileReader)
+	records, err := csvReader.ReadAll()
 	if err != nil {
 		panic(err)
 	}
-	kenallRecords = records
+	kenall = records
 
-	for _, row := range kenallRecords {
+	for _, row := range kenall {
 		row[3] = KatakanaToHiragana(HankakuKatakanaToKatakana(row[3]))
 		row[4] = KatakanaToHiragana(HankakuKatakanaToKatakana(row[4]))
 		row[5] = KatakanaToHiragana(HankakuKatakanaToKatakana(row[5]))
@@ -93,8 +98,8 @@ func PostalCodeSearch(w http.ResponseWriter, r *http.Request) {
 	res.Limit = limit
 	res.Page = page
 
-	for i := 1; i < len(kenallRecords); i++ {
-		row := kenallRecords[i]
+	for i := 1; i < len(kenall); i++ {
+		row := kenall[i]
 		found := false
 		for k := 0; k < len(row); k++ {
 			value := row[k]
