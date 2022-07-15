@@ -58,56 +58,50 @@ func init() {
 		row[5] = KatakanaToHiragana(HankakuKatakanaToKatakana(row[5]))
 	}
 
-	// for i := 0; i < 100; i++ {
-	// 	fmt.Printf("%v\n", kenallRecords[i])
-	// }
-
 	fmt.Printf("csv load time: %d msecs\n", time.Since(csvLoadStart).Milliseconds())
 
 	functions.HTTP("PostalCodeSearch", PostalCodeSearch)
 }
 
-func PostalCodeSearch(w http.ResponseWriter, r *http.Request) {
+func intParam(r *http.Request, name string, defaultValue int, maxValue int) int {
+	param := defaultValue
+	paramStr := r.URL.Query().Get(name)
+	if paramStr != "" {
+		parsed, err := strconv.Atoi(paramStr)
+		if err == nil {
+			param = parsed
+		}
+	}
+	return int(math.Min(float64(param), float64(maxValue)))
+}
+
+func postalCodeSearchByQuery(w http.ResponseWriter, r *http.Request) result {
 
 	query := KatakanaToHiragana(HankakuKatakanaToKatakana(r.URL.Query().Get("q")))
 
-	limit := 10
-	limitStr := r.URL.Query().Get("limit")
-	if limitStr != "" {
-		parsed, err := strconv.Atoi(limitStr)
-		if err == nil {
-			limit = parsed
-		}
-	}
-	limit = int(math.Min(float64(limit), 20))
+	limit := intParam(r, "lmit", 10, 20)
 
-	page := 0
-	pageStr := r.URL.Query().Get("page")
-	if pageStr != "" {
-		parsed, err := strconv.Atoi(pageStr)
-		if err == nil {
-			page = parsed
-		}
-	}
+	page := intParam(r, "page", 0, 100)
 
-	searchStart := time.Now()
 	skip := limit * page
 
-	var res result
-	res.Q = query
-	res.Limit = limit
-	res.Page = page
+	var res result = result{
+		Q:     query,
+		Limit: limit,
+		Page:  page,
+	}
 
-	for i := 1; i < len(kenall); i++ {
-		row := kenall[i]
+	for _, row := range kenall {
 		found := false
-		for k := 0; k < len(row); k++ {
+
+		for k := 3; k <= 8; k++ {
 			value := row[k]
 			if 0 <= strings.Index(value, query) {
 				found = true
 				break
 			}
 		}
+
 		if found {
 			if skip <= 0 {
 				res.Hits = append(res.Hits, row)
@@ -121,6 +115,47 @@ func PostalCodeSearch(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	return res
+
+}
+
+func postalCodeSearchByPostalCode(w http.ResponseWriter, r *http.Request, postalCode string) result {
+
+	limit := intParam(r, "lmit", 10, 20)
+
+	var res result = result{
+		Q:     postalCode,
+		Limit: limit,
+		Page:  0,
+	}
+
+	for _, row := range kenall {
+		if 0 <= strings.Index(row[2], postalCode) {
+			res.Hits = append(res.Hits, row)
+			if limit <= len(res.Hits) {
+				break
+			}
+		}
+	}
+
+	return res
+
+}
+
+func PostalCodeSearch(w http.ResponseWriter, r *http.Request) {
+
+	postalcode := r.URL.Query().Get("postalcode")
+
+	searchStart := time.Now()
+
+	var res result
+
+	if postalcode == "" {
+		res = postalCodeSearchByQuery(w, r)
+	} else {
+		res = postalCodeSearchByPostalCode(w, r, postalcode)
+	}
+
 	res.Time = int(time.Since(searchStart).Milliseconds())
 
 	resultString, err := json.Marshal(res)
@@ -130,5 +165,4 @@ func PostalCodeSearch(w http.ResponseWriter, r *http.Request) {
 	} else {
 		fmt.Fprintf(w, "%s\n", resultString)
 	}
-
 }
