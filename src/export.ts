@@ -1,10 +1,10 @@
 import { Index } from "flexsearch";
 import fs from "fs";
+import { indexToId } from "../functions/src/id";
 
 async function main() {
   const kennallString = fs.readFileSync("./functions/x-ken-all-hiragana.json");
   const kennall: string[][] = JSON.parse(kennallString.toString());
-
   const index = new Index({
     preset: "memory",
     tokenize: "full",
@@ -31,12 +31,14 @@ async function main() {
       address3,
     ] = kennall[i];
 
-    index.add(i, address1Furigana);
-    index.append(i, address2Furigana);
-    index.append(i, address3Furigana);
-    index.append(i, address1);
-    index.append(i, address2);
-    index.append(i, address3);
+    const id = indexToId(i);
+
+    index.add(id, address1Furigana);
+    index.append(id, address2Furigana);
+    index.append(id, address3Furigana);
+    index.append(id, address1);
+    index.append(id, address2);
+    index.append(id, address3);
   }
   const indexEnd = performance.now();
   console.log(`index completed: ${(indexEnd - indexStart).toFixed()}msecs`);
