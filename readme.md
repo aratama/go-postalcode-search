@@ -1,19 +1,22 @@
 # postalcode-search
 
-1. Download `x-ken-all.csv` from http://zipcloud.ibsnet.co.jp/
-2. Encode the csv file from Shift-JIS to UTF8
-3. Put it to the root directory of the project
-4. Run `./run.sh` and test
-5. Run `./deploy.sh` to deploy
+Download latest `x-ken-all.csv` from http://zipcloud.ibsnet.co.jp/
+Put it to the root directory of the project
 
 ## Run locally
 
 ```
-$ ./run.sh
+$ go run cmd/main.go
 ```
 
 - http://localhost:8080/?q=長野
 - http://localhost:8080/?postalcode=1000000
+
+## Test
+
+```
+$ go test
+```
 
 ## Deploy
 
