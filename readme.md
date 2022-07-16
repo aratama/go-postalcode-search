@@ -1,5 +1,7 @@
 # postalcode-search
 
+Simple HTTP function demo for Google Cloud Functions.
+
 Download latest `x-ken-all.csv` from http://zipcloud.ibsnet.co.jp/
 Put it to the root directory of the project
 

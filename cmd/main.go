@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	postalcodeSearch "example.com/postalcode-search/postalcodesearch"
+	postalcodeSearch "github.com/aratama/go-postalcode-search/postalcodesearch"
 )
 
 func main() {

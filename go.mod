@@ -1,4 +1,4 @@
-module example.com/postalcode-search
+module github.com/aratama/go-postalcode-search
 
 go 1.16
 

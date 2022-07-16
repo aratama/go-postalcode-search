@@ -3,9 +3,9 @@ package function
 import (
 	"net/http"
 
-	postalcodeSearch "example.com/postalcode-search/postalcodesearch"
+	postalcodesearch "github.com/aratama/go-postalcode-search/postalcodesearch"
 )
 
 func PostalCodeSearch(w http.ResponseWriter, r *http.Request) {
-	postalcodeSearch.PostalCodeSearch(w, r)
+	postalcodesearch.PostalCodeSearch(w, r)
 }
