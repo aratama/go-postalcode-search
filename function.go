@@ -26,6 +26,8 @@ type result struct {
 
 var kenall [][]string
 
+var origins = []string{"http://localhost:8080"}
+
 func init() {
 
 	dir := "./"
@@ -119,7 +121,9 @@ func postalCodeSearchByQuery(w http.ResponseWriter, r *http.Request) result {
 
 }
 
-func postalCodeSearchByPostalCode(w http.ResponseWriter, r *http.Request, postalCode string) result {
+func postalCodeSearchByPostalCode(w http.ResponseWriter, r *http.Request, postalCodeWithHyphen string) result {
+
+	postalCode := strings.Replace(postalCodeWithHyphen, "-", "", -1)
 
 	limit := intParam(r, "lmit", 10, 20)
 

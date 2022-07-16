@@ -12,7 +12,8 @@
 $ ./run.sh
 ```
 
-Then, open http://localhost:8080/?q=長野
+- http://localhost:8080/?q=長野
+- http://localhost:8080/?postalcode=1000000
 
 ## Deploy
 
