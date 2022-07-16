@@ -4,13 +4,10 @@ import (
 	"log"
 	"net/http"
 
-	postalcodeSearch "example.com/postalcode-search"
+	postalcodeSearch "example.com/postalcode-search/postalcodesearch"
 )
 
 func main() {
-	handler := func(w http.ResponseWriter, req *http.Request) {
-		postalcodeSearch.PostalCodeSearch(w, req)
-	}
-	http.HandleFunc("/", handler)
+	http.HandleFunc("/", postalcodeSearch.PostalCodeSearch)
 	log.Fatal(http.ListenAndServe("localhost:8080", nil))
 }

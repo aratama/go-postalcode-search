@@ -15,7 +15,7 @@ $ go run cmd/main.go
 ## Test
 
 ```
-$ go test
+$ go test ./...
 ```
 
 ## Deploy
