@@ -16,7 +16,7 @@ import (
 	"golang.org/x/text/transform"
 )
 
-type result struct {
+type PostalCodeSearchResult struct {
 	Page  int        `json:"page"`
 	Q     string     `json:"q"`
 	Limit int        `json:"limit"`
@@ -77,7 +77,7 @@ func intParam(r *http.Request, name string, defaultValue int, maxValue int) int 
 	return int(math.Min(float64(param), float64(maxValue)))
 }
 
-func postalCodeSearchByQuery(w http.ResponseWriter, r *http.Request) result {
+func postalCodeSearchByQuery(w http.ResponseWriter, r *http.Request) PostalCodeSearchResult {
 
 	query := KatakanaToHiragana(HankakuKatakanaToKatakana(r.URL.Query().Get("q")))
 
@@ -87,7 +87,7 @@ func postalCodeSearchByQuery(w http.ResponseWriter, r *http.Request) result {
 
 	skip := limit * page
 
-	var res result = result{
+	var res PostalCodeSearchResult = PostalCodeSearchResult{
 		Q:     query,
 		Limit: limit,
 		Page:  page,
@@ -121,13 +121,13 @@ func postalCodeSearchByQuery(w http.ResponseWriter, r *http.Request) result {
 
 }
 
-func postalCodeSearchByPostalCode(w http.ResponseWriter, r *http.Request, postalCodeWithHyphen string) result {
+func postalCodeSearchByPostalCode(w http.ResponseWriter, r *http.Request, postalCodeWithHyphen string) PostalCodeSearchResult {
 
 	postalCode := strings.Replace(postalCodeWithHyphen, "-", "", -1)
 
 	limit := intParam(r, "lmit", 10, 20)
 
-	var res result = result{
+	var res PostalCodeSearchResult = PostalCodeSearchResult{
 		Q:     postalCode,
 		Limit: limit,
 		Page:  0,
@@ -152,7 +152,7 @@ func PostalCodeSearch(w http.ResponseWriter, r *http.Request) {
 
 	searchStart := time.Now()
 
-	var res result
+	var res PostalCodeSearchResult
 
 	if postalcode == "" {
 		res = postalCodeSearchByQuery(w, r)
